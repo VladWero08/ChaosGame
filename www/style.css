@@ -1,0 +1,32 @@
+/* Import Google Fonts: Sofia Sans*/
+@import url('https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@300;400;700&display=swap');
+
+:root{
+  --bg-color--body: #1B2430;
+  --bg-color--side: #CCCDC6;
+  --color-stroke: #D6D5A8;
+  --color-titles: #1C1C1E;
+  --slider: #E79E4F;
+}
+
+body{
+  background: var(--bg-color--body);
+  font-family: 'Sofia Sans', sans-serif;
+}
+
+h1{ color: white; }
+h3{ color: var(--color-titles); }
+
+.side-bar form.well{
+  background: var(--bg-color--side);
+  border: 1px solid var(--bg-color--side);
+}
+
+/* Redefine slider colors*/
+.irs--shiny .irs-bar,
+.irs--shiny .irs-single{
+  background: var(--slider);
+  border-top: 1px solid var(--slider);
+  border-bottom: 1px solid var(--slider);
+}
+
