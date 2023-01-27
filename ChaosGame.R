@@ -16,24 +16,29 @@ ui <- fluidPage(
     div(class = "side-bar",
         sidebarPanel(
           # Choose the shape of the fractal
-          selectInput("SelectShape", h3("Select shape:"), 
+          selectInput("SelectShape", h4("Select shape:"), 
                       choices = list("None" = "none", "Triangle" = "triangle", "Square" = "square", "Pentagon" = "pentagon", "Hexagon" = "hexagon")),
           
-          sliderInput("ChaosRatio", h3("Select chaos ratio:"),
+          sliderInput("ChaosRatio", h4("Select chaos ratio:"),
                       min = 0, max=1, value=0.05, round=FALSE, step=0.05),
           
-          # Choose the number of points
-          sliderInput("SliderNrPoints", h3("Select number of points to be drawn:"), 
-                      min = 1, max=20000, value=1000),
-          
           # Choose the speed of the drawing process
-          selectInput("SelectSpeed", h3("Select speed:"), 
-                      choices = list("Very slow" = "very_slow", "Slow" = "slow", "Medium" = "medium", "Fast" = "fast", "Very fast" = "very_fast")),
+          uiOutput("SpeedPoints"),
+          
+          # Choose number of points to be drawn per step
+          uiOutput("NumbersPerStep"),
+          
+          # Choose the number of points slider
+          # It will render only if the shape of the fractal has been chosen
+          conditionalPanel(
+            condition = "input.SelectShape != 'none'",
+            uiOutput("SliderPoints")
+          )
           
         )    
     ),
-    mainPanel(
-      plotOutput("mainPlot", width = "750px", height = "750px")
+    div(class = "col-sm-8 main-bar",
+        plotOutput("mainPlot", width = "750px", height = "750px")
     )
   )
 )
@@ -54,7 +59,7 @@ generateTriangle <- function(ratio){
   # Generate a random point inside the triangle
   # -> this are some boundaries so the random point won't exceed the triangle area
   randX <- runif(1, min = 0.25 ,max = 0.75) 
-  randY <- runif(1, min = 0, max = sqrt(3) / 4)
+  randY <- runif(1, min = 0, max = 0.4)
   
   allPoints[1, ] <- c(randX, randY)
   # For every iteration generate a random vertex of the triangle
@@ -65,8 +70,8 @@ generateTriangle <- function(ratio){
     # ( allPoints[i,1], allPoints[i,2]) --> (x,y) coordinates from the previous point
     # (initPoints[initPointsRand[i], 1], initPoints[initPointsRand[i], 2]) --> random generated coordinates 
     # towards one vertex of the triangle
-    randX <- (allPoints[i, 1] + initPoints[initPointsRand[i], 1]) * ratio
-    randY <- (allPoints[i, 2] + initPoints[initPointsRand[i], 2]) * ratio
+    randX <- (initPoints[initPointsRand[i], 1] - allPoints[i, 1]) * ratio + allPoints[i, 1]
+    randY <- (initPoints[initPointsRand[i], 2] - allPoints[i, 2]) * ratio + allPoints[i, 2]
     
     allPoints[i + 1, ] <- c(randX, randY)
   }
@@ -77,6 +82,25 @@ generateTriangle <- function(ratio){
 # Define the server and logic
 server <- function(input, output){
   
+  # Slider which will animate depending on the value of chosen speed
+  # by the user
+  output$SliderPoints <- renderUI({
+    sliderInput("SliderNrPoints", h4("Select number of points to be drawn:"), 
+                min = 1, max=10000, value=5, step = input$NumbersOnStep, animate=animationOptions(interval = input$SelectSpeed))
+  })  
+  
+  # Speed input 
+  output$SpeedPoints <- renderUI({
+    selectInput("SelectSpeed", h4("Select speed:"), 
+                choices = list("Very slow" = 500, "Slow" = 400, "Medium" = 300, "Fast" = 100, "Very fast" = 50))
+  })
+  
+  # Number of points to be drawn in a step
+  output$NumbersPerStep <- renderUI({
+    sliderInput("NumbersOnStep", h4("Select number of points / step:"),
+                min = 1, max = 100, value=5)
+  })
+
   chosenShape <- reactive({
     if(input$SelectShape == "triangle"){ return (generateTriangle(input$ChaosRatio))} 
   })
@@ -88,7 +112,7 @@ server <- function(input, output){
     
     plot(0, 0, xlim = c(0, 1), ylim = c(0, 1), col = 0, yaxt = "n", xaxt = "n", xlab = "", ylab = "", bty = "n")
     points(allPoints[1 : input$SliderNrPoints, 1], allPoints[1 : input$SliderNrPoints, 2], pch = 46, col = "#D6D5A8")  
-    points(tips[, 1], tips[, 2], pch = 20, cex = 2, col = "white")
+    points(tips[, 1], tips[, 2], pch = 20, cex = 3, col = "white")
   })
   
   

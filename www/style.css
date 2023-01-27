@@ -17,9 +17,22 @@ body{
 h1{ color: white; }
 h3{ color: var(--color-titles); }
 
+.split-items{ display: flex;}
+.split-items #SpeedPoints,
+.split-items #NumbersPerStep{ flex: 1;}
+
+
+/* Main bars design*/
+
 .side-bar form.well{
   background: var(--bg-color--side);
   border: 1px solid var(--bg-color--side);
+}
+
+.main-bar{
+  display: flex;  
+  align-items: center;
+  justify-content: center;
 }
 
 /* Redefine slider colors*/
