@@ -17,7 +17,7 @@ ui <- fluidPage(
         sidebarPanel(
           # Choose the shape of the fractal
           selectInput("SelectShape", h4("Select shape:"), 
-                      choices = list("None" = "none", "Triangle" = "triangle", "Square" = "square", "Pentagon" = "pentagon", "Hexagon" = "hexagon", "Leaf" = "leaf", "Flower" = "flower")),
+                      choices = list("None" = "none", "Triangle" = "triangle", "Square" = "square", "Pentagon" = "pentagon", "Hexagon" = "hexagon", "Leaf" = "leaf")),
           
           conditionalPanel(
             condition = "input.SelectShape != 'leaf'",
@@ -275,49 +275,6 @@ generateLeaf <- function(){
   return (list(initPoints, allPoints))
 }
 
-generateFlower <- function(){
-  numPoints <- 15000
-  # Still return initpoints, to keep the same logic for the program
-  initPoints <- matrix(NA, ncol = 2, nrow = 1)
-  allPoints <- matrix(NA, ncol = 2, nrow = numPoints * 2)
-  allPointsReversed <- matrix(NA, ncol = 2, nrow = numPoints)
-  
-  # Generate a random point inside the triangle
-  # -> this are some boundaries so the random point won't exceed the triangle area
-  initPoints[1, ] <- c(0, 0)
-  randX <- 0
-  randY <- 0
-  
-  # Using the Barnsley fern algorithm, for each of 15000 steps, need
-  initPointsRand <- sample(1:4, numPoints, replace = TRUE, prob=c(0.01, 0.85, 0.07, 0.07))
-  
-  i <- 1
-  while(i < numPoints - 1){
-    
-    if(initPointsRand[i] == 1){
-      randX <- 0 
-      randY <- 0.16*randY
-    } else if(initPointsRand[i] == 2){
-      randX <- 0.85*randX + 0.04*randY  
-      randY <- -0.04*randX + 0.85*randY + 1.6
-    } else if(initPointsRand[i] == 3){
-      randX <- 0.2*randX - 0.26*randY
-      randY <- 0.23*randX + 0.22*randY + 1.6
-    } else{
-      randX <- -0.15*randX + 0.28*randY
-      randY <- 0.26*randX + 0.24*randY + 0.44
-    }
-    
-    # Rotate the fractal generate 45 degrees to the right of the (0,0)
-    allPoints[i, ] <- c((-0.45) * (randX * cos(45) - randY * sin(45)), 0.45 * (randY * cos(45) + randX * sin(45)))
-    allPoints[i + 1, ] <- c((0.45) * (randX * cos(45) - randY * sin(45)), 0.45 * (randY * cos(45) + randX * sin(45)))  
-    
-    i <- i + 2
-  }
-  
-  return (list(initPoints, allPoints))
-}
-
 # Define the server and logic
 server <- function(input, output){
   
@@ -351,8 +308,6 @@ server <- function(input, output){
       return (generateHexagon(input$ChaosRatio))} 
     if(input$SelectShape == "leaf"){ 
       return (generateLeaf())} 
-    if(input$SelectShape == "flower"){ 
-      return (generateFlower())} 
   })
   
   output$mainPlot <- renderPlot({
@@ -360,8 +315,8 @@ server <- function(input, output){
     tips <- chosenShape()[[1]]
     allPoints <- chosenShape()[[2]]
     
-    plot(0, 0, xlim = c(-8, 8), ylim = c(-8, 8), col = 0, yaxt = "n", xaxt = "n", xlab = "", ylab = "", bty = "n")
-    points(allPoints[1 : input$SliderNrPoints * 2, 1], allPoints[1 : input$SliderNrPoints * 2, 2], pch = 46, col = "#D6D5A8")  
+    plot(0, 0, xlim = c(0, 4), ylim = c(0, 4), col = 0, yaxt = "n", xaxt = "n", xlab = "", ylab = "", bty = "n")
+    points(allPoints[1 : input$SliderNrPoints, 1], allPoints[1 : input$SliderNrPoints, 2], pch = 46, col = "#D6D5A8")  
     points(tips[, 1], tips[, 2], pch = 20, cex = 3, col = "white")
   })
 }
