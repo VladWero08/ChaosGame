@@ -110,6 +110,130 @@ generateHexagon <- function(ratio){
   return (list(initPoints, allPoints))
 }
 
+generateSquare <-function(ratio){
+  numPoints <- 10000
+  initPoints <- matrix(NA, ncol = 2, nrow = 4)
+  allPoints <- matrix(NA, ncol = 2, nrow = numPoints)
+  
+  # In the square, in the XY axis, the initial points are:
+  # (0,0), (1,0), (0, 1) , (1,1)
+  initPoints[1, ] <- c(0, 0)
+  initPoints[2, ] <- c(1, 0)
+  initPoints[3, ] <- c(0, 1)
+  initPoints[4, ] <- c(1, 1)
+  
+  
+  # Generate a random point inside the square
+  # -> this are some boundaries so the random point won't exceed the square area
+  randX <- runif(1, min = 0.05 ,max = 0.95) 
+  randY <- runif(1, min = 0.05, max = 0.95)
+  
+  allPoints[1, ] <- c(randX, randY)
+  # generate first random Vertex
+  lastVertexIndex <- sample(1:4, 1)
+  currentVertexIndex <- lastVertexIndex
+  
+  log_info('Loading data')
+  for(i in 1:(numPoints-1)){
+    # Calculate the position of the next point:
+    # ( allPoints[i,1], allPoints[i,2]) --> (x,y) coordinates from the previous point
+    # (initPoints[initPointsRand[i], 1], initPoints[initPointsRand[i], 2]) --> random generated (x,y) coordinates 
+    # towards one vertex of the square
+     
+   
+    #making sure the same vertex isn't picked two consecutive times 
+    while (lastVertexIndex == currentVertexIndex){
+      currentVertexIndex = sample(1:4, 1, replace = TRUE)
+     #log_info('vertex index picked is {currentVertexIndex }')
+     #log_info('last vertex index picked is {lastVertexIndex}')
+    }
+    #log_info('!!out of while loop!!')
+    #getting the X and Y coordinates of the picked Vertex
+    choosenVertexX = initPoints[currentVertexIndex, 1]
+    choosenVertexY = initPoints[currentVertexIndex, 2]
+    
+    #updating lastVertexIndex value
+    lastVertexIndex = currentVertexIndex
+    
+    #building the next point (prevPoint + (Vertex-prevpoint)/ratio)
+    prevPointX = allPoints[i, 1]
+    prevPointY = allPoints[i, 2]
+    
+    randX <- (choosenVertexX - prevPointX) * ratio + prevPointX
+    randY <- (choosenVertexY - prevPointY) * ratio + prevPointY
+    #log_info("new point is {randX}")
+    #the next point picked
+    allPoints[i + 1, ] <- c(randX, randY)
+  
+  }
+  
+  #return the vertexes of the square + the points choosen inside the square
+  return (list(initPoints, allPoints))
+}
+
+valid <-function (value){
+  result <- TRUE
+  if (value<0.051 && value> 1.287) result<- FALSE
+  if (value<1.127 && value>  2.072) result<- FALSE
+  if (value<2.206 && value> 1.292) rresult<- FALSE
+  if (value<1.798 && value> 0.024) result<- FALSE
+  if (value<0.466 && value> 0.021) result<- FALSE
+
+  return (result)
+}
+
+generatePentagon <-function(ratio){
+  numPoints <- 20000
+  initPoints <- matrix(NA, ncol = 2, nrow = 5)
+  allPoints <- matrix(NA, ncol = 2, nrow = numPoints)
+  
+  # settint the values of vertexes
+  initPoints[1, ] <- c(0.051, 1.287)
+  initPoints[2, ] <- c(1.127, 2.072)
+  initPoints[3, ] <- c(2.206,1.292)
+  initPoints[4, ] <- c(1.798, 0.024)
+  initPoints[5, ] <- c(0.466, 0.021)
+  
+  
+  # Generate a random point inside the pentagon
+  # -> this are some boundaries so the random point won't exceed the area
+  randX <- runif(1, min = 0.01 ,max = 1.99) 
+  randY <- runif(1, min = 0.01, max = 3.99)
+  while(valid(randX) == FALSE){
+  randX <- runif(1, min = 0.01 ,max = 1.99) 
+  }
+  while(valid(randY) == FALSE){
+    randY <- runif(1, min = 0.01, max = 3.99)
+  }
+
+  allPoints[1, ] <- c(randX, randY)
+  
+  #  log_info('Loading data')
+  for(i in 1:(numPoints-1)){
+    # Calculate the position of the next point:
+    # ( allPoints[i,1], allPoints[i,2]) --> (x,y) coordinates from the previous point
+    # (initPoints[initPointsRand[i], 1], initPoints[initPointsRand[i], 2]) --> random generated (x,y) coordinates 
+    # towards one vertex of the square
+    vertexIndex = sample(1:5, 1, replace = TRUE)
+  
+    choosenVertexX = initPoints[vertexIndex, 1]
+    choosenVertexY = initPoints[vertexIndex, 2]
+  
+    #building the next point (prevPoint + (Vertex-prevpoint)/ratio)
+    prevPointX = allPoints[i, 1]
+    prevPointY = allPoints[i, 2]
+    
+    randX <- (choosenVertexX - prevPointX) * ratio + prevPointX
+    randY <- (choosenVertexY - prevPointY) * ratio + prevPointY
+      
+    #the next point picked
+    allPoints[i + 1, ] <- c(randX, randY)
+  }
+  
+  #return the vertexes of the pentagon + the points choosen inside it
+  return (list(initPoints, allPoints))
+}
+
 # Define the server and logic
 server <- function(input, output){
   
@@ -133,10 +257,14 @@ server <- function(input, output){
   })
 
   chosenShape <- reactive({
-    if(input$SelectShape == "triangle"){ return (generateTriangle(input$ChaosRatio))} 
-    if(input$SelectShape == "square"){ return (generateSquare(input$ChaosRatio))} 
-    if(input$SelectShape == "pentagon"){ return (generatePentagon(input$ChaosRatio))} 
-
+    if(input$SelectShape == "triangle"){ 
+      return (generateTriangle(input$ChaosRatio))} 
+    if(input$SelectShape == "square"){ 
+      return (generateSquare(input$ChaosRatio))} 
+    if(input$SelectShape == "pentagon"){ 
+      return (generatePentagon(input$ChaosRatio))} 
+    if(input$SelectShape == "hexagon"){ 
+      return (generatePentagon(input$ChaosRatio))} 
   })
   
   output$mainPlot <- renderPlot({
