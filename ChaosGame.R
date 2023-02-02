@@ -17,10 +17,13 @@ ui <- fluidPage(
         sidebarPanel(
           # Choose the shape of the fractal
           selectInput("SelectShape", h4("Select shape:"), 
-                      choices = list("None" = "none", "Triangle" = "triangle", "Square" = "square", "Pentagon" = "pentagon", "Hexagon" = "hexagon")),
+                      choices = list("None" = "none", "Triangle" = "triangle", "Square" = "square", "Pentagon" = "pentagon", "Hexagon" = "hexagon", "Leaf" = "leaf", "Flower" = "flower")),
           
-          sliderInput("ChaosRatio", h4("Select chaos ratio:"),
-                      min = 0, max=1, value=0.05, round=FALSE, step=0.05),
+          conditionalPanel(
+            condition = "input.SelectShape != 'leaf'",
+            sliderInput("ChaosRatio", h4("Select chaos ratio:"),
+                        min = 0, max=1, value=0.05, round=FALSE, step=0.05)
+          ),
           
           # Choose the speed of the drawing process
           uiOutput("SpeedPoints"),
@@ -46,15 +49,15 @@ ui <- fluidPage(
 # Functions to generate fractals
 
 generateTriangle <- function(ratio){
-  numPoints <- 10000
+  numPoints <- 15000
   initPoints <- matrix(NA, ncol = 2, nrow = 3)
   allPoints <- matrix(NA, ncol = 2, nrow = numPoints)
   
   # In the triangle, in the XY axis, the initial points are:
-  # (0,0), (4,0), (2, 2)
+  # (0,0), (4,0), (2, 4)
   initPoints[1, ] <- c(0, 0)
   initPoints[2, ] <- c(4, 0)
-  initPoints[3, ] <- c(2, 2)
+  initPoints[3, ] <- c(2, 4)
   
   # Generate a random point inside the triangle
   # -> this are some boundaries so the random point won't exceed the triangle area
@@ -80,18 +83,17 @@ generateTriangle <- function(ratio){
 }
 
 generateHexagon <- function(ratio){
-  numPoints <- 10000
+  numPoints <- 15000
   initPoints <- matrix(NA, ncol = 2, nrow = 6)
   allPoints <- matrix(NA, ncol = 2, nrow = numPoints)
   
   # In the hexagon, in the XY axis, the initial points are:
-  # base: (1, 0), (3, 0); middle: (0, 1), (4, 1); top: (1, 2), (3, 2)
-  initPoints[1, ] <- c(1, 0)
-  initPoints[2, ] <- c(3, 0)
-  initPoints[3, ] <- c(0, 1)
-  initPoints[4, ] <- c(4, 1)
-  initPoints[5, ] <- c(1, 2)
-  initPoints[6, ] <- c(3, 2)
+  initPoints[1, ] <- c(-1 + 2, (-1) * sqrt(3) + 2)
+  initPoints[2, ] <- c(1 + 2, (-1) * sqrt(3) + 2)
+  initPoints[3, ] <- c(-2 + 2, 0 + 2)
+  initPoints[4, ] <- c(2 + 2, 0 + 2)
+  initPoints[5, ] <- c(1 + 2, sqrt(3) + 2)
+  initPoints[6, ] <- c(-1 + 2, sqrt(3) + 2)
   
   randX <- runif(1, min = 1.05 ,max = 1.95) 
   randY <- runif(1, min = 0.05, max = 1.95)
@@ -111,16 +113,16 @@ generateHexagon <- function(ratio){
 }
 
 generateSquare <-function(ratio){
-  numPoints <- 10000
+  numPoints <- 15000
   initPoints <- matrix(NA, ncol = 2, nrow = 4)
   allPoints <- matrix(NA, ncol = 2, nrow = numPoints)
   
   # In the square, in the XY axis, the initial points are:
   # (0,0), (1,0), (0, 1) , (1,1)
   initPoints[1, ] <- c(0, 0)
-  initPoints[2, ] <- c(1, 0)
-  initPoints[3, ] <- c(0, 1)
-  initPoints[4, ] <- c(1, 1)
+  initPoints[2, ] <- c(4, 0)
+  initPoints[3, ] <- c(0, 4)
+  initPoints[4, ] <- c(4, 4)
   
   
   # Generate a random point inside the square
@@ -173,26 +175,26 @@ generateSquare <-function(ratio){
 
 valid <-function (value){
   result <- TRUE
-  if (value<0.051 && value> 1.287) result<- FALSE
-  if (value<1.127 && value>  2.072) result<- FALSE
-  if (value<2.206 && value> 1.292) rresult<- FALSE
-  if (value<1.798 && value> 0.024) result<- FALSE
-  if (value<0.466 && value> 0.021) result<- FALSE
+  if (value<0.051 * 1.5 && value> 1.287 * 1.5) result<- FALSE
+  if (value<1.127 * 1.5 && value> 2.072 * 1.5) result<- FALSE
+  if (value<2.206 * 1.5 && value> 1.292 * 1.5) rresult<- FALSE
+  if (value<1.798 * 1.5 && value> 0.024 * 1.5) result<- FALSE
+  if (value<0.466 * 1.5 && value> 0.021 * 1.5) result<- FALSE
 
   return (result)
 }
 
 generatePentagon <-function(ratio){
-  numPoints <- 20000
+  numPoints <- 15000
   initPoints <- matrix(NA, ncol = 2, nrow = 5)
   allPoints <- matrix(NA, ncol = 2, nrow = numPoints)
   
-  # settint the values of vertexes
-  initPoints[1, ] <- c(0.051, 1.287)
-  initPoints[2, ] <- c(1.127, 2.072)
-  initPoints[3, ] <- c(2.206,1.292)
-  initPoints[4, ] <- c(1.798, 0.024)
-  initPoints[5, ] <- c(0.466, 0.021)
+  # setting the values of vertexes
+  initPoints[1, ] <- c(0.051 * 1.5, 1.287 * 1.5)
+  initPoints[2, ] <- c(1.127 * 1.5, 2.072 * 1.5)
+  initPoints[3, ] <- c(2.206 * 1.5, 1.292 * 1.5)
+  initPoints[4, ] <- c(1.798 * 1.5, 0.024 * 1.5)
+  initPoints[5, ] <- c(0.466 * 1.5, 0.021 * 1.5)
   
   
   # Generate a random point inside the pentagon
@@ -200,7 +202,7 @@ generatePentagon <-function(ratio){
   randX <- runif(1, min = 0.01 ,max = 1.99) 
   randY <- runif(1, min = 0.01, max = 3.99)
   while(valid(randX) == FALSE){
-  randX <- runif(1, min = 0.01 ,max = 1.99) 
+    randX <- runif(1, min = 0.01 ,max = 1.99) 
   }
   while(valid(randY) == FALSE){
     randY <- runif(1, min = 0.01, max = 3.99)
@@ -234,6 +236,88 @@ generatePentagon <-function(ratio){
   return (list(initPoints, allPoints))
 }
 
+generateLeaf <- function(){
+  numPoints <- 15000
+  # Still return initpoints, to keep the same logic for the program
+  initPoints <- matrix(NA, ncol = 2, nrow = 1)
+  allPoints <- matrix(NA, ncol = 2, nrow = numPoints)
+  allPointsReversed <- matrix(NA, ncol = 2, nrow = numPoints)
+  
+  # Generate a random point inside the triangle
+  # -> this are some boundaries so the random point won't exceed the triangle area
+  initPoints[1, ] <- c(0, 0)
+  randX <- 0
+  randY <- 0
+  
+  # Using the Barnsley fern algorithm, for each of 15000 steps, need
+  initPointsRand <- sample(1:4, numPoints, replace = TRUE, prob=c(0.01, 0.85, 0.07, 0.07))
+  
+  for(i in 1:(numPoints-1)){
+    
+    if(initPointsRand[i] == 1){
+      randX <- 0 
+      randY <- 0.16*randY
+    } else if(initPointsRand[i] == 2){
+      randX <- 0.85*randX + 0.04*randY  
+      randY <- -0.04*randX + 0.85*randY + 1.6
+    } else if(initPointsRand[i] == 3){
+      randX <- 0.2*randX - 0.26*randY
+      randY <- 0.23*randX + 0.22*randY + 1.6
+    } else{
+      randX <- -0.15*randX + 0.28*randY
+      randY <- 0.26*randX + 0.24*randY + 0.44
+    }
+    
+    # Rotate the fractal generate 45 degrees to the right of the (0,0)
+    allPoints[i + 1, ] <- c((-0.45) * (randX * cos(45) - randY * sin(45)), 0.45 * (randY * cos(45) + randX * sin(45)))
+  }
+  
+  return (list(initPoints, allPoints))
+}
+
+generateFlower <- function(){
+  numPoints <- 15000
+  # Still return initpoints, to keep the same logic for the program
+  initPoints <- matrix(NA, ncol = 2, nrow = 1)
+  allPoints <- matrix(NA, ncol = 2, nrow = numPoints * 2)
+  allPointsReversed <- matrix(NA, ncol = 2, nrow = numPoints)
+  
+  # Generate a random point inside the triangle
+  # -> this are some boundaries so the random point won't exceed the triangle area
+  initPoints[1, ] <- c(0, 0)
+  randX <- 0
+  randY <- 0
+  
+  # Using the Barnsley fern algorithm, for each of 15000 steps, need
+  initPointsRand <- sample(1:4, numPoints, replace = TRUE, prob=c(0.01, 0.85, 0.07, 0.07))
+  
+  i <- 1
+  while(i < numPoints - 1){
+    
+    if(initPointsRand[i] == 1){
+      randX <- 0 
+      randY <- 0.16*randY
+    } else if(initPointsRand[i] == 2){
+      randX <- 0.85*randX + 0.04*randY  
+      randY <- -0.04*randX + 0.85*randY + 1.6
+    } else if(initPointsRand[i] == 3){
+      randX <- 0.2*randX - 0.26*randY
+      randY <- 0.23*randX + 0.22*randY + 1.6
+    } else{
+      randX <- -0.15*randX + 0.28*randY
+      randY <- 0.26*randX + 0.24*randY + 0.44
+    }
+    
+    # Rotate the fractal generate 45 degrees to the right of the (0,0)
+    allPoints[i, ] <- c((-0.45) * (randX * cos(45) - randY * sin(45)), 0.45 * (randY * cos(45) + randX * sin(45)))
+    allPoints[i + 1, ] <- c((0.45) * (randX * cos(45) - randY * sin(45)), 0.45 * (randY * cos(45) + randX * sin(45)))  
+    
+    i <- i + 2
+  }
+  
+  return (list(initPoints, allPoints))
+}
+
 # Define the server and logic
 server <- function(input, output){
   
@@ -241,7 +325,7 @@ server <- function(input, output){
   # by the user
   output$SliderPoints <- renderUI({
     sliderInput("SliderNrPoints", h4("Select number of points to be drawn:"), 
-                min = 1, max=10000, value=5, step = input$NumbersOnStep, animate=animationOptions(interval = input$SelectSpeed))
+                min = 1, max=15000, value=5, step = input$NumbersOnStep, animate=animationOptions(interval = input$SelectSpeed))
   })  
   
   # Speed input 
@@ -264,7 +348,11 @@ server <- function(input, output){
     if(input$SelectShape == "pentagon"){ 
       return (generatePentagon(input$ChaosRatio))} 
     if(input$SelectShape == "hexagon"){ 
-      return (generatePentagon(input$ChaosRatio))} 
+      return (generateHexagon(input$ChaosRatio))} 
+    if(input$SelectShape == "leaf"){ 
+      return (generateLeaf())} 
+    if(input$SelectShape == "flower"){ 
+      return (generateFlower())} 
   })
   
   output$mainPlot <- renderPlot({
@@ -272,12 +360,10 @@ server <- function(input, output){
     tips <- chosenShape()[[1]]
     allPoints <- chosenShape()[[2]]
     
-    plot(0, 0, xlim = c(0, 3), ylim = c(0, 4), col = 0, yaxt = "n", xaxt = "n", xlab = "", ylab = "", bty = "n")
-    points(allPoints[1 : input$SliderNrPoints, 1], allPoints[1 : input$SliderNrPoints, 2], pch = 46, col = "#D6D5A8")  
+    plot(0, 0, xlim = c(-8, 8), ylim = c(-8, 8), col = 0, yaxt = "n", xaxt = "n", xlab = "", ylab = "", bty = "n")
+    points(allPoints[1 : input$SliderNrPoints * 2, 1], allPoints[1 : input$SliderNrPoints * 2, 2], pch = 46, col = "#D6D5A8")  
     points(tips[, 1], tips[, 2], pch = 20, cex = 3, col = "white")
   })
-  
-  
 }
 
 shinyApp(ui = ui, server = server)
