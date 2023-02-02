@@ -1,5 +1,5 @@
 library(shiny)
-
+library(logger)
 # Define the UI
 ui <- fluidPage(
   
@@ -79,6 +79,176 @@ generateTriangle <- function(ratio){
   return (list(initPoints, allPoints))
 }
 
+generateSquare <-function(ratio){
+  numPoints <- 20000
+  initPoints <- matrix(NA, ncol = 2, nrow = 4)
+  allPoints <- matrix(NA, ncol = 2, nrow = numPoints)
+  
+  # In the square, in the XY axis, the initial points are:
+  # (0,0), (1,0), (0, 1) , (1,1)
+  initPoints[1, ] <- c(0, 0)
+  initPoints[2, ] <- c(1, 0)
+  initPoints[3, ] <- c(0, 1)
+  initPoints[4, ] <- c(1, 1)
+  
+  
+  # Generate a random point inside the square
+  # -> this are some boundaries so the random point won't exceed the square area
+  randX <- runif(1, min = 0.05 ,max = 0.95) 
+  randY <- runif(1, min = 0.05, max = 0.95)
+  
+  allPoints[1, ] <- c(randX, randY)
+  # generate first random Vertex
+  lastVertexIndex <- sample(1:4, 1)
+  currentVertexIndex <- lastVertexIndex
+  
+  log_info('Loading data')
+  for(i in 1:(numPoints-1)){
+    # Calculate the position of the next point:
+    # ( allPoints[i,1], allPoints[i,2]) --> (x,y) coordinates from the previous point
+    # (initPoints[initPointsRand[i], 1], initPoints[initPointsRand[i], 2]) --> random generated (x,y) coordinates 
+    # towards one vertex of the square
+     
+   
+    #making sure the same vertex isn't picked two consecutive times 
+    while (lastVertexIndex == currentVertexIndex){
+      currentVertexIndex = sample(1:4, 1, replace = TRUE)
+     #log_info('vertex index picked is {currentVertexIndex }')
+     #log_info('last vertex index picked is {lastVertexIndex}')
+    }
+    #log_info('!!out of while loop!!')
+    #getting the X and Y coordinates of the picked Vertex
+    choosenVertexX = initPoints[currentVertexIndex, 1]
+    choosenVertexY = initPoints[currentVertexIndex, 2]
+    
+    #updating lastVertexIndex value
+    lastVertexIndex = currentVertexIndex
+    
+    #building the next point (prevPoint + (Vertex-prevpoint)/ratio)
+    prevPointX = allPoints[i, 1]
+    prevPointY = allPoints[i, 2]
+    
+    randX <- (choosenVertexX - prevPointX) * ratio + prevPointX
+    randY <- (choosenVertexY - prevPointY) * ratio + prevPointY
+    #log_info("new point is {randX}")
+    #the next point picked
+    allPoints[i + 1, ] <- c(randX, randY)
+  
+  }
+  
+  #return the vertexes of the square + the points choosen inside the square
+
+  return (list(initPoints, allPoints))
+}
+
+generatePentagon <-function(ratio){
+  numPoints <- 20000
+  initPoints <- matrix(NA, ncol = 2, nrow = 5)
+  allPoints <- matrix(NA, ncol = 2, nrow = numPoints)
+  
+  # In the square, in the XY axis, the initial points are:
+  # (0,0), (1,0), (0, 1) , (1,1)
+  initPoints[1, ] <- c(0, 0)
+  initPoints[2, ] <- c(1, 0)
+  initPoints[3, ] <- c(0, 1)
+  initPoints[4, ] <- c(1, 1)
+  initPoints[5, ] <- c(1, 1)
+  
+  
+  # Generate a random point inside the square
+  # -> this are some boundaries so the random point won't exceed the square area
+  randX <- runif(1, min = 0.05 ,max = 0.95) 
+  randY <- runif(1, min = 0.05, max = 0.95)
+  
+  allPoints[1, ] <- c(randX, randY)
+  # generate first random Vertex
+  lastVertexIndex <- sample(1:4, 1)
+  currentVertexIndex <- lastVertexIndex
+  
+  log_info('Loading data')
+  for(i in 1:(numPoints-1)){
+    # Calculate the position of the next point:
+    # ( allPoints[i,1], allPoints[i,2]) --> (x,y) coordinates from the previous point
+    # (initPoints[initPointsRand[i], 1], initPoints[initPointsRand[i], 2]) --> random generated (x,y) coordinates 
+    # towards one vertex of the square
+    
+    
+    #making sure the same vertex isn't picked two consecutive times 
+    while (lastVertexIndex == currentVertexIndex){
+      currentVertexIndex = sample(1:4, 1, replace = TRUE)
+      #log_info('vertex index picked is {currentVertexIndex }')
+      #log_info('last vertex index picked is {lastVertexIndex}')
+    }
+    #log_info('!!out of while loop!!')
+    #getting the X and Y coordinates of the picked Vertex
+    choosenVertexX = initPoints[currentVertexIndex, 1]
+    choosenVertexY = initPoints[currentVertexIndex, 2]
+    
+    #updating lastVertexIndex value
+    lastVertexIndex = currentVertexIndex
+    
+    #building the next point (prevPoint + (Vertex-prevpoint)/ratio)
+    prevPointX = allPoints[i, 1]
+    prevPointY = allPoints[i, 2]
+    
+    randX <- (choosenVertexX - prevPointX) * ratio + prevPointX
+    randY <- (choosenVertexY - prevPointY) * ratio + prevPointY
+    #log_info("new point is {randX}")
+    #the next point picked
+    allPoints[i + 1, ] <- c(randX, randY)
+    
+  }
+  
+  #return the vertexes of the square + the points choosen inside the square
+  
+  return (list(initPoints, allPoints))
+}
+
+generatePentagon <-function(ratio){
+  
+}
+# Define the server and logic
+server <- function(input, output){
+  
+  # Slider which will animate depending on the value of chosen speed
+  # by the user
+  output$SliderPoints <- renderUI({
+    sliderInput("SliderNrPoints", h4("Select number of points to be drawn:"), 
+                min = 1, max=10000, value=5, step = input$NumbersOnStep, animate=animationOptions(interval = input$SelectSpeed))
+  })  
+  
+  # Speed input 
+  output$SpeedPoints <- renderUI({
+    selectInput("SelectSpeed", h4("Select speed:"), 
+                choices = list("Very slow" = 500, "Slow" = 400, "Medium" = 300, "Fast" = 100, "Very fast" = 50))
+  })
+  
+  # Number of points to be drawn in a step
+  output$NumbersPerStep <- renderUI({
+    sliderInput("NumbersOnStep", h4("Select number of points / step:"),
+                min = 1, max = 100, value=5)
+  })
+  
+  chosenShape <- reactive({
+    if(input$SelectShape == "triangle"){ return (generateTriangle(input$ChaosRatio))} 
+    if(input$SelectShape == "square"){ return (generateSquare(input$ChaosRatio))} 
+    if(input$SelectShape == "pentagon"){ return (generateSquare(input$ChaosRatio))} 
+    
+  })
+  
+  output$mainPlot <- renderPlot({
+    par(bg = "#1B2430")
+    tips <- chosenShape()[[1]]
+    allPoints <- chosenShape()[[2]]
+    
+    plot(0, 0, xlim = c(0, 1), ylim = c(0, 1), col = 0, yaxt = "n", xaxt = "n", xlab = "", ylab = "", bty = "n")
+    points(allPoints[1 : input$SliderNrPoints, 1], allPoints[1 : input$SliderNrPoints, 2], pch = 46, col = "#D6D5A8")  
+    points(tips[, 1], tips[, 2], pch = 20, cex = 3, col = "white")
+  })
+  
+  
+  
+}
 # Define the server and logic
 server <- function(input, output){
   
@@ -103,6 +273,9 @@ server <- function(input, output){
 
   chosenShape <- reactive({
     if(input$SelectShape == "triangle"){ return (generateTriangle(input$ChaosRatio))} 
+    if(input$SelectShape == "square"){ return (generateSquare(input$ChaosRatio))} 
+    if(input$SelectShape == "pentagon"){ return (generateSquare(input$ChaosRatio))} 
+
   })
   
   output$mainPlot <- renderPlot({
