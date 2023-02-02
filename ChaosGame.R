@@ -1,5 +1,5 @@
 library(shiny)
-
+library(logger)
 # Define the UI
 ui <- fluidPage(
   
@@ -133,10 +133,10 @@ server <- function(input, output){
   })
 
   chosenShape <- reactive({
-    if(input$SelectShape == "triangle"){ 
-      return (generateTriangle(input$ChaosRatio))}
-    if(input$SelectShape == "hexagon"){ 
-      return (generateHexagon(input$ChaosRatio))} 
+    if(input$SelectShape == "triangle"){ return (generateTriangle(input$ChaosRatio))} 
+    if(input$SelectShape == "square"){ return (generateSquare(input$ChaosRatio))} 
+    if(input$SelectShape == "pentagon"){ return (generatePentagon(input$ChaosRatio))} 
+
   })
   
   output$mainPlot <- renderPlot({
@@ -144,7 +144,7 @@ server <- function(input, output){
     tips <- chosenShape()[[1]]
     allPoints <- chosenShape()[[2]]
     
-    plot(0, 0, xlim = c(0, 4), ylim = c(0, 2), col = 0, yaxt = "n", xaxt = "n", xlab = "", ylab = "", bty = "n")
+    plot(0, 0, xlim = c(0, 3), ylim = c(0, 4), col = 0, yaxt = "n", xaxt = "n", xlab = "", ylab = "", bty = "n")
     points(allPoints[1 : input$SliderNrPoints, 1], allPoints[1 : input$SliderNrPoints, 2], pch = 46, col = "#D6D5A8")  
     points(tips[, 1], tips[, 2], pch = 20, cex = 3, col = "white")
   })
