@@ -14,3 +14,5 @@ These are some of the fractals that can be generated using the script:
 ![334099014_3542978785931756_856437436767313879_n](https://user-images.githubusercontent.com/77508081/221667309-21432235-826c-4a7a-8673-be2a917205a3.jpg)  
 ![333817239_3151930098432286_1841341348108722203_n](https://user-images.githubusercontent.com/77508081/221667318-7d11e741-13d2-4ad9-abbe-d0d4f53ae03e.jpg) 
 ![334094337_717501913199002_4139344117396441459_n](https://user-images.githubusercontent.com/77508081/221667328-2832b318-a276-4ac9-ad50-fa47798dc2f0.jpg)
+
+Contributors: [VladWero08](https://github.com/VladWero08) & [Meepo39-1](https://github.com/Meepo39-1)
